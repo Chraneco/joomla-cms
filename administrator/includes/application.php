@@ -133,41 +133,32 @@ class JAdministrator extends JApplication
 	 */
 	public function dispatch($component = null)
 	{
-		try
-		{
-			if ($component === null) {
-				$component = JAdministratorHelper::findOption();
-			}
-
-			$document	= JFactory::getDocument();
-			$user		= JFactory::getUser();
-
-			switch ($document->getType()) {
-				case 'html':
-					$document->setMetaData('keywords', $this->getCfg('MetaKeys'));
-					break;
-
-				default:
-					break;
-			}
-
-			$document->setTitle($this->getCfg('sitename'). ' - ' .JText::_('JADMINISTRATION'));
-			$document->setDescription($this->getCfg('MetaDesc'));
-			$document->setGenerator('Joomla! - Open Source Content Management');
-
-			$contents = JComponentHelper::renderComponent($component);
-			$document->setBuffer($contents, 'component');
-
-			// Trigger the onAfterDispatch event.
-			JPluginHelper::importPlugin('system');
-			$this->triggerEvent('onAfterDispatch');
+		if ($component === null) {
+			$component = JAdministratorHelper::findOption();
 		}
-		// Mop up any uncaught exceptions.
-		catch (Exception $e)
-		{
-			$code = $e->getCode();
-			JError::raiseError($code ? $code : 500, $e->getMessage());
+
+		$document	= JFactory::getDocument();
+		$user		= JFactory::getUser();
+
+		switch ($document->getType()) {
+			case 'html':
+				$document->setMetaData('keywords', $this->getCfg('MetaKeys'));
+				break;
+
+			default:
+				break;
 		}
+
+		$document->setTitle($this->getCfg('sitename'). ' - ' .JText::_('JADMINISTRATION'));
+		$document->setDescription($this->getCfg('MetaDesc'));
+		$document->setGenerator('Joomla! - Open Source Content Management');
+
+		$contents = JComponentHelper::renderComponent($component);
+		$document->setBuffer($contents, 'component');
+
+		// Trigger the onAfterDispatch event.
+		JPluginHelper::importPlugin('system');
+		$this->triggerEvent('onAfterDispatch');
 	}
 
 	/**
