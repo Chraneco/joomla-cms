@@ -3,7 +3,7 @@
  * @package     Joomla.Libraries
  * @subpackage  HTML
  *
- * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -93,24 +93,24 @@ abstract class JHtml
 	 */
 	public static function _($key)
 	{
-		list($key, $prefix, $file, $func) = self::extract($key);
+		list($key, $prefix, $file, $func) = static::extract($key);
 
-		if (array_key_exists($key, self::$registry))
+		if (array_key_exists($key, static::$registry))
 		{
-			$function = self::$registry[$key];
+			$function = static::$registry[$key];
 			$args = func_get_args();
 
 			// Remove function name from arguments
 			array_shift($args);
 
-			return self::call($function, $args);
+			return static::call($function, $args);
 		}
 
 		$className = $prefix . ucfirst($file);
 
 		if (!class_exists($className))
 		{
-			$path = JPath::find(self::$includePaths, strtolower($file) . '.php');
+			$path = JPath::find(static::$includePaths, strtolower($file) . '.php');
 
 			if ($path)
 			{
@@ -131,13 +131,13 @@ abstract class JHtml
 
 		if (is_callable($toCall))
 		{
-			self::register($key, $toCall);
+			static::register($key, $toCall);
 			$args = func_get_args();
 
 			// Remove function name from arguments
 			array_shift($args);
 
-			return self::call($toCall, $args);
+			return static::call($toCall, $args);
 		}
 		else
 		{
@@ -157,11 +157,11 @@ abstract class JHtml
 	 */
 	public static function register($key, $function)
 	{
-		list($key) = self::extract($key);
+		list($key) = static::extract($key);
 
 		if (is_callable($function))
 		{
-			self::$registry[$key] = $function;
+			static::$registry[$key] = $function;
 
 			return true;
 		}
@@ -180,11 +180,11 @@ abstract class JHtml
 	 */
 	public static function unregister($key)
 	{
-		list($key) = self::extract($key);
+		list($key) = static::extract($key);
 
-		if (isset(self::$registry[$key]))
+		if (isset(static::$registry[$key]))
 		{
-			unset(self::$registry[$key]);
+			unset(static::$registry[$key]);
 
 			return true;
 		}
@@ -203,9 +203,9 @@ abstract class JHtml
 	 */
 	public static function isRegistered($key)
 	{
-		list($key) = self::extract($key);
+		list($key) = static::extract($key);
 
-		return isset(self::$registry[$key]);
+		return isset(static::$registry[$key]);
 	}
 
 	/**
@@ -568,7 +568,7 @@ abstract class JHtml
 	{
 		if ($path_rel !== -1)
 		{
-			$includes = self::includeRelativeFiles('images', $file, $relative, false, false);
+			$includes = static::includeRelativeFiles('images', $file, $relative, false, false);
 			$file = count($includes) ? $includes[0] : null;
 		}
 
@@ -626,7 +626,7 @@ abstract class JHtml
 	 */
 	public static function stylesheet($file, $attribs = array(), $relative = false, $path_only = false, $detect_browser = true, $detect_debug = true)
 	{
-		$includes = self::includeRelativeFiles('css', $file, $relative, $detect_browser, $detect_debug);
+		$includes = static::includeRelativeFiles('css', $file, $relative, $detect_browser, $detect_debug);
 
 		// If only path is required
 		if ($path_only)
@@ -668,7 +668,7 @@ abstract class JHtml
 	 *
 	 * @return  mixed  nothing if $path_only is false, null, path or array of path if specific js browser files were detected.
 	 *
-	 * @see     JHtml::stylesheet
+	 * @see     JHtml::stylesheet()
 	 * @since   1.5
 	 */
 	public static function script($file, $framework = false, $relative = false, $path_only = false, $detect_browser = true, $detect_debug = true)
@@ -676,10 +676,10 @@ abstract class JHtml
 		// Include MooTools framework
 		if ($framework)
 		{
-			self::_('behavior.framework');
+			static::_('behavior.framework');
 		}
 
-		$includes = self::includeRelativeFiles('js', $file, $relative, $detect_browser, $detect_debug);
+		$includes = static::includeRelativeFiles('js', $file, $relative, $detect_browser, $detect_debug);
 
 		// If only path is required
 		if ($path_only)
@@ -712,22 +712,22 @@ abstract class JHtml
 	/**
 	 * Set format related options.
 	 *
-	 * Updates the formatOptions array with all valid values in the passed
-	 * array. See {@see JHtml::$formatOptions} for details.
+	 * Updates the formatOptions array with all valid values in the passed array.
 	 *
 	 * @param   array  $options  Option key/value pairs.
 	 *
 	 * @return  void
 	 *
+	 * @see     JHtml::$formatOptions
 	 * @since   1.5
 	 */
 	public static function setFormatOptions($options)
 	{
 		foreach ($options as $key => $val)
 		{
-			if (isset(self::$formatOptions[$key]))
+			if (isset(static::$formatOptions[$key]))
 			{
-				self::$formatOptions[$key] = $val;
+				static::$formatOptions[$key] = $val;
 			}
 		}
 	}
@@ -739,7 +739,7 @@ abstract class JHtml
 	 * @param   string   $format     The date format specification string (see {@link PHP_MANUAL#date}).
 	 * @param   mixed    $tz         Time zone to be used for the date.  Special cases: boolean true for user
 	 *                               setting, boolean false for server setting.
-	 * @param   boolean  $gregorian  True to use Gregorian calenar.
+	 * @param   boolean  $gregorian  True to use Gregorian calendar.
 	 *
 	 * @return  string    A date translated by the given format and time zone.
 	 *
@@ -847,7 +847,7 @@ abstract class JHtml
 		if (!$text)
 		{
 			$alt = htmlspecialchars($alt, ENT_COMPAT, 'UTF-8');
-			$text = self::image($image, $alt, null, true);
+			$text = static::image($image, $alt, null, true);
 		}
 
 		if ($href)
@@ -859,18 +859,20 @@ abstract class JHtml
 			$tip = $text;
 		}
 
-		if ($title)
+		if ($class == 'hasTip')
 		{
-			if ($class == 'hasTip')
+			// Still using MooTools tooltips!
+			$tooltip = htmlspecialchars($tooltip, ENT_COMPAT, 'UTF-8');
+
+			if ($title)
 			{
-				$tooltip = htmlspecialchars($tooltip, ENT_COMPAT, 'UTF-8');
 				$title = htmlspecialchars($title, ENT_COMPAT, 'UTF-8');
 				$tooltip = $title . '::' . $tooltip;
 			}
-			else
-			{
-				$tooltip = self::tooltipText($title, $tooltip, 0);
-			}
+		}
+		else
+		{
+			$tooltip = self::tooltipText($title, $tooltip, 0);
 		}
 
 		return '<span class="' . $class . '" title="' . $tooltip . '">' . $tip . '</span>';
@@ -896,7 +898,7 @@ abstract class JHtml
 			return '';
 		}
 
-		// split title into title and content if the title contains '::' (old Mootools format).
+		// Split title into title and content if the title contains '::' (old Mootools format).
 		if ($content == '' && !(strpos($title, '::') === false))
 		{
 			list($title, $content) = explode('::', $title, 2);
@@ -960,6 +962,9 @@ abstract class JHtml
 			$done = array();
 		}
 
+		$attribs['class'] = isset($attribs['class']) ? $attribs['class'] : 'input-medium';
+		$attribs['class'] = trim($attribs['class'] . ' hasTooltip');
+
 		$readonly = isset($attribs['readonly']) && $attribs['readonly'] == 'readonly';
 		$disabled = isset($attribs['disabled']) && $attribs['disabled'] == 'disabled';
 
@@ -968,45 +973,57 @@ abstract class JHtml
 			$attribs = JArrayHelper::toString($attribs);
 		}
 
-		self::_('bootstrap.tooltip');
+		static::_('bootstrap.tooltip');
 
-		if (!$readonly && !$disabled)
+		// Format value when not '0000-00-00 00:00:00', otherwise blank it as it would result in 1970-01-01.
+		if ((int) $value)
 		{
-			// Load the calendar behavior
-			self::_('behavior.calendar');
-
-			// Only display the triggers once for each control.
-			if (!in_array($id, $done))
-			{
-				$document = JFactory::getDocument();
-				$document
-					->addScriptDeclaration(
-					'window.addEvent(\'domready\', function() {Calendar.setup({
-				// Id of the input field
-				inputField: "' . $id . '",
-				// Format of the input field
-				ifFormat: "' . $format . '",
-				// Trigger for the calendar (button ID)
-				button: "' . $id . '_img",
-				// Alignment (defaults to "Bl")
-				align: "Tl",
-				singleClick: true,
-				firstDay: ' . JFactory::getLanguage()->getFirstDay() . '
-				});});'
-				);
-				$done[] = $id;
-			}
-			return '<div class="input-append"><input type="text" class="hasTooltip" title="' . (0 !== (int) $value ? self::_('date', $value, null, null) : '')
-				. '" name="' . $name . '" id="' . $id . '" value="' . htmlspecialchars($value, ENT_COMPAT, 'UTF-8') . '" ' . $attribs . ' />'
-				. '<button class="btn" id="' . $id . '_img"><i class="icon-calendar"></i></button></div>';
+			$tz = date_default_timezone_get();
+			date_default_timezone_set('UTC');
+			$inputvalue = strftime($format, strtotime($value));
+			date_default_timezone_set($tz);
 		}
 		else
 		{
-			return '<input type="text" class="hasTooltip" title="' . (0 !== (int) $value ? self::_('date', $value, null, null) : '')
-				. '" value="' . (0 !== (int) $value ? self::_('date', $value, 'Y-m-d H:i:s', null) : '') . '" ' . $attribs
-				. ' /><input type="hidden" name="' . $name . '" id="' . $id . '" value="' . htmlspecialchars($value, ENT_COMPAT, 'UTF-8') . '" />';
+			$inputvalue = '';
 		}
+
+		// Load the calendar behavior
+		static::_('behavior.calendar');
+
+		// Only display the triggers once for each control.
+		if (!in_array($id, $done))
+		{
+			$document = JFactory::getDocument();
+			$document
+				->addScriptDeclaration(
+				'jQuery(document).ready(function($) {Calendar.setup({
+			// Id of the input field
+			inputField: "' . $id . '",
+			// Format of the input field
+			ifFormat: "' . $format . '",
+			// Trigger for the calendar (button ID)
+			button: "' . $id . '_img",
+			// Alignment (defaults to "Bl")
+			align: "Tl",
+			singleClick: true,
+			firstDay: ' . JFactory::getLanguage()->getFirstDay() . '
+			});});'
+			);
+			$done[] = $id;
+		}
+
+		// Hide button using inline styles for readonly/disabled fields
+		$btn_style	= ($readonly || $disabled) ? ' style="display:none;"' : '';
+		$div_class	= (!$readonly && !$disabled) ? ' class="input-append"' : '';
+
+		return '<div' . $div_class . '>'
+				. '<input type="text" title="' . (0 !== (int) $value ? static::_('date', $value, null, null) : '')
+				. '" name="' . $name . '" id="' . $id . '" value="' . htmlspecialchars($inputvalue, ENT_COMPAT, 'UTF-8') . '" ' . $attribs . ' />'
+				. '<button type="button" class="btn" id="' . $id . '_img"' . $btn_style . '><i class="icon-calendar"></i></button>'
+			. '</div>';
 	}
+
 	/**
 	 * Add a directory where JHtml should search for helpers. You may
 	 * either pass a string or an array of directories.
@@ -1025,13 +1042,13 @@ abstract class JHtml
 		// Loop through the path directories
 		foreach ($path as $dir)
 		{
-			if (!empty($dir) && !in_array($dir, self::$includePaths))
+			if (!empty($dir) && !in_array($dir, static::$includePaths))
 			{
-				array_unshift(self::$includePaths, JPath::clean($dir));
+				array_unshift(static::$includePaths, JPath::clean($dir));
 			}
 		}
 
-		return self::$includePaths;
+		return static::$includePaths;
 	}
 
 	/**
@@ -1081,7 +1098,7 @@ abstract class JHtml
 			}
 			else
 			{
-				$elements[] = $key . ': ' . self::getJSObject(is_object($v) ? get_object_vars($v) : $v);
+				$elements[] = $key . ': ' . static::getJSObject(is_object($v) ? get_object_vars($v) : $v);
 			}
 		}
 

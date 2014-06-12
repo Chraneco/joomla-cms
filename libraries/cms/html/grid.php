@@ -3,7 +3,7 @@
  * @package     Joomla.Platform
  * @subpackage  HTML
  *
- * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -33,7 +33,7 @@ abstract class JHtmlGrid
 	public static function boolean($i, $value, $taskOn = null, $taskOff = null)
 	{
 		// Load the behavior.
-		self::behavior();
+		static::behavior();
 		JHtml::_('bootstrap.tooltip');
 
 		// Build the title.
@@ -47,7 +47,7 @@ abstract class JHtmlGrid
 
 		if ($toggle)
 		{
-			return '<a class="grid_' . $bool . ' hasToolip" title="' . $title . '" rel="{id:\'cb' . $i . '\', task:\'' . $task
+			return '<a class="grid_' . $bool . ' hasTooltip" title="' . $title . '" rel="{id:\'cb' . $i . '\', task:\'' . $task
 				. '\'}" href="#toggle"></a>';
 		}
 		else
@@ -73,6 +73,7 @@ abstract class JHtmlGrid
 	 */
 	public static function sort($title, $order, $direction = 'asc', $selected = 0, $task = null, $new_direction = 'asc', $tip = '')
 	{
+		JHtml::_('behavior.core');
 		JHtml::_('bootstrap.tooltip');
 
 		$direction = strtolower($direction);
@@ -108,6 +109,24 @@ abstract class JHtmlGrid
 		$html .= '</a>';
 
 		return $html;
+	}
+
+	/**
+	 * Method to check all checkboxes in a grid
+	 *
+	 * @param   string  $name    The name of the form element
+	 * @param   string  $tip     The text shown as tooltip title instead of $tip
+	 * @param   string  $action  The action to perform on clicking the checkbox
+	 *
+	 * @return  string
+	 *
+	 * @since   3.1.2
+	 */
+	public static function checkall($name = 'checkall-toggle', $tip = 'JGLOBAL_CHECK_ALL', $action = 'Joomla.checkAll(this)')
+	{
+		JHtml::_('bootstrap.tooltip');
+
+		return '<input type="checkbox" name="' . $name . '" value="" class="hasTooltip" title="' . JHtml::tooltipText($tip) . '" onclick="' . $action . '" />';
 	}
 
 	/**
@@ -155,7 +174,7 @@ abstract class JHtmlGrid
 
 		if ($result)
 		{
-			return self::_checkedOut($row);
+			return static::_checkedOut($row);
 		}
 		else
 		{
@@ -297,30 +316,29 @@ abstract class JHtmlGrid
 
 		if (!$loaded)
 		{
+			// Include jQuery
+			JHtml::_('jquery.framework');
+
 			// Build the behavior script.
 			$js = '
-		window.addEvent(\'domready\', function(){
-			actions = $$(\'a.move_up\');
-			actions.combine($$(\'a.move_down\'));
-			actions.combine($$(\'a.grid_true\'));
-			actions.combine($$(\'a.grid_false\'));
-			actions.combine($$(\'a.grid_trash\'));
-			actions.each(function(a){
-				a.addEvent(\'click\', function(){
+		jQuery(function($){
+			$actions = $(\'a.move_up, a.move_down, a.grid_true, a.grid_false, a.grid_trash\');
+			$actions.each(function(){
+				$(this).on(\'click\', function(){
 					args = JSON.decode(this.rel);
 					listItemTask(args.id, args.task);
 				});
 			});
-			$$(\'input.check-all-toggle\').each(function(el){
-				el.addEvent(\'click\', function(){
-					if (el.checked) {
-						document.id(this.form).getElements(\'input[type=checkbox]\').each(function(i){
-							i.checked = true;
+			$(\'input.check-all-toggle\').each(function(){
+				$(this).on(\'click\', function(){
+					if (this.checked) {
+						$(this).closest(\'form\').find(\'input[type=checkbox]\').each(function(){
+							this.checked = true;
 						})
 					}
 					else {
-						document.id(this.form).getElements(\'input[type=checkbox]\').each(function(i){
-							i.checked = false;
+						$(this).closest(\'form\').find(\'input[type=checkbox]\').each(function(){
+							this.checked = false;
 						})
 					}
 				});

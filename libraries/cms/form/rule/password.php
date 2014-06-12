@@ -3,7 +3,7 @@
  * @package     Joomla.Platform
  * @subpackage  Form
  *
- * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -18,7 +18,6 @@ defined('JPATH_PLATFORM') or die;
  */
 class JFormRulePassword extends JFormRule
 {
-
 	/**
 	 * Method to test if two values are not equal. To use this rule, the form
 	 * XML needs a validate attribute of equals and a field attribute
@@ -40,8 +39,6 @@ class JFormRulePassword extends JFormRule
 	 */
 	public function test(SimpleXMLElement $element, $value, $group = null, JRegistry $input = null, JForm $form = null)
 	{
-		$field = (string) $element['field'];
-
 		$meter		= isset($this->element['strengthmeter'])  ? ' meter="0"' : '1';
 		$threshold	= isset($this->element['threshold']) ? (int) $this->element['threshold'] : 66;
 		$minimumLength = isset($this->element['minimum_length']) ? (int) $this->element['minimum_length'] : 4;
@@ -53,7 +50,7 @@ class JFormRulePassword extends JFormRule
 		// Some of these may be empty for legacy reasons.
 		$params = JComponentHelper::getParams('com_users');
 
-		if(!empty($params))
+		if (!empty($params))
 		{
 			$minimumLengthp = $params->get('minimum_length');
 			$minimumIntegersp = $params->get('minimum_integers');
@@ -81,16 +78,16 @@ class JFormRulePassword extends JFormRule
 		$valueLength = strlen($value);
 
 		// We set a maximum length to prevent abuse since it is unfiltered.
-		if ($valueLength > 99)
+		if ($valueLength > 4096)
 		{
-			JFactory::getApplication()->enqueueMessage(
-				JText::_('COM_USERS_MSG_PASSWORD_TOO_LONG'),
-				'warning'
-				);
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_USERS_MSG_PASSWORD_TOO_LONG'), 'warning');
 		}
 
 		// We don't allow white space inside passwords
-		$valueTrim =  trim($value);
+		$valueTrim = trim($value);
+
+		// Set a variable to check if any errors are made in password
+		$validPassword = true;
 
 		if (strlen($valueTrim) != $valueLength)
 		{
@@ -99,13 +96,13 @@ class JFormRulePassword extends JFormRule
 				'warning'
 				);
 
-			return false;
+			$validPassword = false;
 		}
 
 		// Minimum number of integers required
 		if (!empty($minimumIntegers))
 		{
-			$nInts = preg_match_all('/[0-9]/', $value );
+			$nInts = preg_match_all('/[0-9]/', $value, $imatch);
 
 			if ($nInts < $minimumIntegers)
 			{
@@ -114,15 +111,14 @@ class JFormRulePassword extends JFormRule
 					'warning'
 				);
 
-				return false;
+				$validPassword = false;
 			}
 		}
 
 		// Minimum number of symbols required
 		if (!empty($minimumSymbols))
 		{
-
-			$nsymbols = preg_match_all('[\W]', $value );
+			$nsymbols = preg_match_all('[\W]', $value, $smatch);
 
 			if ($nsymbols < $minimumSymbols)
 			{
@@ -131,15 +127,15 @@ class JFormRulePassword extends JFormRule
 					'warning'
 				);
 
-				return false;
+				$validPassword = false;
 			}
 		}
 
 		// Minimum number of upper case ASII characters required
 		if (!empty($minimumUppercase))
 		{
+			$nUppercase = preg_match_all("/[A-Z]/", $value, $umatch);
 
-			$nUppercase = preg_match_all( "/[A-Z]/", $value );
 			if ($nUppercase < $minimumUppercase)
 			{
 				JFactory::getApplication()->enqueueMessage(
@@ -147,7 +143,7 @@ class JFormRulePassword extends JFormRule
 					'warning'
 			);
 
-				return false;
+				$validPassword = false;
 			}
 		}
 
@@ -161,8 +157,14 @@ class JFormRulePassword extends JFormRule
 					'warning'
 					);
 
-				return false;
+				$validPassword = false;
 			}
+		}
+
+		// If valid has violated any rules above return false.
+		if (!$validPassword)
+		{
+			return false;
 		}
 
 		return true;

@@ -3,7 +3,7 @@
  * @package     Joomla.Administrator
  * @subpackage  com_newsfeeds
  *
- * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -31,7 +31,7 @@ if ($saveOrder)
 	JHtml::_('sortablelist.sortable', 'articleList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
 }
 $sortFields = $this->getSortFields();
-$assoc		= isset($app->item_associations) ? $app->item_associations : 0;
+$assoc		= JLanguageAssociations::isEnabled();
 ?>
 <script type="text/javascript">
 	Joomla.orderTable = function()
@@ -62,7 +62,7 @@ $assoc		= isset($app->item_associations) ? $app->item_associations : 0;
 		<div id="filter-bar" class="btn-toolbar">
 			<div class="filter-search btn-group pull-left">
 				<label for="filter_search" class="element-invisible"><?php echo JText::_('COM_NEWSFEEDS_FILTER_SEARCH_DESC');?></label>
-				<input type="text" name="filter_search" id="filter_search" placeholder="<?php echo JText::_('COM_NEWSFEEDS_SEARCH_IN_TITLE'); ?>" value="<?php echo $this->escape($this->state->get('filter.search')); ?>" title="<?php echo JText::_('COM_NEWSFEEDS_SEARCH_IN_TITLE'); ?>" />
+				<input type="text" name="filter_search" id="filter_search" placeholder="<?php echo JText::_('JSEARCH_FILTER'); ?>" value="<?php echo $this->escape($this->state->get('filter.search')); ?>" class="hasTooltip" title="<?php echo JHtml::tooltipText('COM_NEWSFEEDS_SEARCH_IN_TITLE'); ?>" />
 			</div>
 			<div class="btn-group pull-left hidden-phone">
 				<button type="submit" class="btn hasTooltip" title="<?php echo JHtml::tooltipText('JSEARCH_FILTER_SUBMIT'); ?>"><i class="icon-search"></i></button>
@@ -96,7 +96,7 @@ $assoc		= isset($app->item_associations) ? $app->item_associations : 0;
 						<?php echo JHtml::_('grid.sort', '<i class="icon-menu-2"></i>', 'a.ordering', $listDirn, $listOrder, null, 'asc', 'JGRID_HEADING_ORDERING'); ?>
 					</th>
 					<th width="1%" class="hidden-phone">
-						<input type="checkbox" name="checkall-toggle" value="" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" onclick="Joomla.checkAll(this)" />
+						<?php echo JHtml::_('grid.checkall'); ?>
 					</th>
 					<th width="5%" class="nowrap center">
 						<?php echo JHtml::_('grid.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
@@ -149,7 +149,7 @@ $assoc		= isset($app->item_associations) ? $app->item_associations : 0;
 						{
 							$iconClass = ' inactive';
 						}
-						else if (!$saveOrder)
+						elseif (!$saveOrder)
 						{
 							$iconClass = ' inactive tip-top hasTooltip" title="' . JHtml::tooltipText('JORDERINGDISABLED');
 						}
@@ -165,7 +165,20 @@ $assoc		= isset($app->item_associations) ? $app->item_associations : 0;
 						<?php echo JHtml::_('grid.id', $i, $item->id); ?>
 					</td>
 					<td class="center">
-						<?php echo JHtml::_('jgrid.published', $item->published, $i, 'newsfeeds.', $canChange, 'cb', $item->publish_up, $item->publish_down); ?>
+						<div class="btn-group">
+							<?php echo JHtml::_('jgrid.published', $item->published, $i, 'newsfeeds.', $canChange, 'cb', $item->publish_up, $item->publish_down); ?>
+							<?php
+							// Create dropdown items
+							$action = $archived ? 'unarchive' : 'archive';
+							JHtml::_('actionsdropdown.' . $action, 'cb' . $i, 'newsfeeds');
+
+							$action = $trashed ? 'untrash' : 'trash';
+							JHtml::_('actionsdropdown.' . $action, 'cb' . $i, 'newsfeeds');
+
+							// Render dropdown list
+							echo JHtml::_('actionsdropdown.render', $this->escape($item->name));
+							?>
+						</div>
 					</td>
 					<td class="nowrap has-context">
 						<div class="pull-left">
@@ -185,40 +198,6 @@ $assoc		= isset($app->item_associations) ? $app->item_associations : 0;
 								<?php echo $this->escape($item->category_title); ?>
 							</div>
 						</div>
-						<div class="pull-left">
-							<?php
-								// Create dropdown items
-								JHtml::_('dropdown.edit', $item->id, 'newsfeed.');
-								JHtml::_('dropdown.divider');
-								if ($item->published) :
-									JHtml::_('dropdown.unpublish', 'cb' . $i, 'newsfeeds.');
-								else :
-									JHtml::_('dropdown.publish', 'cb' . $i, 'newsfeeds.');
-								endif;
-
-								JHtml::_('dropdown.divider');
-
-								if ($archived) :
-									JHtml::_('dropdown.unarchive', 'cb' . $i, 'newsfeeds.');
-								else :
-									JHtml::_('dropdown.archive', 'cb' . $i, 'newsfeeds.');
-								endif;
-
-								if ($item->checked_out) :
-									JHtml::_('dropdown.checkin', 'cb' . $i, 'newsfeeds.');
-								endif;
-
-								if ($trashed) :
-									JHtml::_('dropdown.untrash', 'cb' . $i, 'newsfeeds.');
-								else :
-									JHtml::_('dropdown.trash', 'cb' . $i, 'newsfeeds.');
-								endif;
-
-								// render dropdown list
-								echo JHtml::_('dropdown.render');
-								?>
-						</div>
-
 					</td>
 					<td class="small hidden-phone">
 						<?php echo $this->escape($item->access_level); ?>

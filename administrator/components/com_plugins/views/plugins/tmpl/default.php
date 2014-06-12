@@ -3,7 +3,7 @@
  * @package     Joomla.Administrator
  * @subpackage  com_plugins
  *
- * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -14,7 +14,6 @@ JHtml::addIncludePath(JPATH_COMPONENT.'/helpers/html');
 
 JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.multiselect');
-JHtml::_('dropdown.init');
 JHtml::_('formbehavior.chosen', 'select');
 
 $user		= JFactory::getUser();
@@ -57,8 +56,8 @@ $sortFields = $this->getSortFields();
 <?php endif;?>
 		<div id="filter-bar" class="btn-toolbar">
 			<div class="filter-search btn-group pull-left">
-				<label for="filter_search" class="element-invisible"><?php echo JText::_('COM_CONTENT_FILTER_SEARCH_DESC');?></label>
-				<input type="text" name="filter_search" id="filter_search" placeholder="<?php echo JText::_('COM_PLUGINS_SEARCH_IN_TITLE'); ?>" value="<?php echo $this->escape($this->state->get('filter.search')); ?>" title="<?php echo JText::_('COM_PLUGINS_SEARCH_IN_TITLE'); ?>" />
+				<label for="filter_search" class="element-invisible"><?php echo JText::_('JSEARCH_FILTER');?></label>
+				<input type="text" name="filter_search" id="filter_search" placeholder="<?php echo JText::_('JSEARCH_FILTER'); ?>" value="<?php echo $this->escape($this->state->get('filter.search')); ?>" class="hasTooltip" title="<?php echo JHtml::tooltipText('COM_PLUGINS_SEARCH_IN_TITLE'); ?>" />
 			</div>
 			<div class="btn-group pull-left">
 				<button type="submit" class="btn hasTooltip" title="<?php echo JHtml::tooltipText('JSEARCH_FILTER_SUBMIT'); ?>"><i class="icon-search"></i></button>
@@ -92,7 +91,7 @@ $sortFields = $this->getSortFields();
 						<?php echo JHtml::_('grid.sort', '<i class="icon-menu-2"></i>', 'ordering', $listDirn, $listOrder, null, 'asc', 'JGRID_HEADING_ORDERING'); ?>
 					</th>
 					<th width="1%" class="hidden-phone">
-						<input type="checkbox" name="checkall-toggle" value="" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" onclick="Joomla.checkAll(this)" />
+						<?php echo JHtml::_('grid.checkall'); ?>
 					</th>
 					<th width="1%" class="nowrap center">
 						<?php echo JHtml::_('grid.sort', 'JSTATUS', 'enabled', $listDirn, $listOrder); ?>
@@ -136,7 +135,7 @@ $sortFields = $this->getSortFields();
 						{
 							$iconClass = ' inactive';
 						}
-						else if (!$saveOrder)
+						elseif (!$saveOrder)
 						{
 							$iconClass = ' inactive tip-top hasTooltip" title="' . JHtml::tooltipText('JORDERINGDISABLED');
 						}

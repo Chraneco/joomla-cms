@@ -3,7 +3,7 @@
  * @package     Joomla.Administrator
  * @subpackage  com_menus
  *
- * @copyright   Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -46,7 +46,7 @@ $modMenuId = (int) $this->get('ModMenuId');
 		<div id="filter-bar" class="btn-toolbar">
 			<div class="filter-search btn-group pull-left">
 				<label for="filter_search" class="element-invisible"><?php echo JText::_('COM_MENUS_MENU_SEARCH_FILTER');?></label>
-				<input type="text" name="filter_search" id="filter_search" placeholder="<?php echo JText::_('COM_MENUS_MENU_SEARCH_FILTER'); ?>" value="<?php echo $this->escape($this->state->get('filter.search')); ?>" title="<?php echo JText::_('COM_MENUS_ITEMS_SEARCH_FILTER'); ?>" />
+				<input type="text" name="filter_search" id="filter_search" placeholder="<?php echo JText::_('JSEARCH_FILTER'); ?>" value="<?php echo $this->escape($this->state->get('filter.search')); ?>" class="hasTooltip" title="<?php echo JHtml::tooltipText('COM_MENUS_ITEMS_SEARCH_FILTER'); ?>" />
 			</div>
 			<div class="btn-group pull-left hidden-phone">
 				<button type="submit" class="btn hasTooltip" title="<?php echo JHtml::tooltipText('JSEARCH_FILTER_SUBMIT'); ?>"><i class="icon-search"></i></button>
@@ -62,7 +62,7 @@ $modMenuId = (int) $this->get('ModMenuId');
 			<thead>
 				<tr>
 					<th width="1%">
-						<input type="checkbox" name="checkall-toggle" value="" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" onclick="Joomla.checkAll(this)" />
+						<?php echo JHtml::_('grid.checkall'); ?>
 					</th>
 					<th>
 						<?php echo JHtml::_('grid.sort', 'JGLOBAL_TITLE', 'a.title', $listDirn, $listOrder); ?>
@@ -114,15 +114,15 @@ $modMenuId = (int) $this->get('ModMenuId');
 						</p>
 					</td>
 					<td class="center btns">
-						<a class="badge badge-success" href="<?php echo JRoute::_('index.php?option=com_menus&view=items&menutype='.$item->menutype.'&filter_published=1');?>">
+						<a class="badge badge-success" href="<?php echo JRoute::_('index.php?option=com_menus&view=items&menutype='.$item->menutype.'&filter[published]=1');?>">
 							<?php echo $item->count_published; ?></a>
 					</td>
 					<td class="center btns">
-						<a class="badge" href="<?php echo JRoute::_('index.php?option=com_menus&view=items&menutype='.$item->menutype.'&filter_published=0');?>">
+						<a class="badge" href="<?php echo JRoute::_('index.php?option=com_menus&view=items&menutype='.$item->menutype.'&filter[published]=0');?>">
 							<?php echo $item->count_unpublished; ?></a>
 					</td>
 					<td class="center btns">
-						<a class="badge badge-error" href="<?php echo JRoute::_('index.php?option=com_menus&view=items&menutype='.$item->menutype.'&filter_published=-2');?>">
+						<a class="badge badge-error" href="<?php echo JRoute::_('index.php?option=com_menus&view=items&menutype='.$item->menutype.'&filter[published]=-2');?>">
 							<?php echo $item->count_trashed; ?></a>
 					</td>
 					<td class="left">
